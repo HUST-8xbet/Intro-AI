@@ -1,4 +1,5 @@
 #include<iostream>
+#include<random>
 #include<time.h>
 #include<stdlib.h>
 #include<chrono>
@@ -16,6 +17,7 @@
 #include<cstdlib>
 #include"Activation.hpp"
 #include"GeneticAlgorithm.hpp"
+#include"Genome.hpp"
 using namespace std;
 
 //Lai ghep neuron con dua tren thuoc tinh cha me
@@ -42,7 +44,28 @@ Genome crossover(const Individual &dominant, const Individual &recessive){
     //Ke thua neuron genes 
     for(const auto &dominant_neuron: dominant.genome.neurons){
         int neuron_id = dominant_neuron.neuron_id;
-        
-
+        optional<NeuronGene> recessive_neuron = recessive.genome.find_neurons(neuron_id);
+        if(!recessive_neuron){
+            offspring.add_neuron(dominant_neuron);
+        }
+        else{
+            offspring.add_neuron(crossover_neuron(dominant_neuron, *recessive_neuron));
+        }
     }
+    for(const auto &dominant_link : dominant.genome.links){
+        Link_ID link_id = dominant_link.linkid;
+        optional<Link_Gene> recessive_link = recessive.genome.find_link(link_id);
+
+        if(!recessive_link){
+            offspring.add_link(dominant_link);
+        }
+        else{
+            offspring.add_link(crossover_linkgene(dominant_link, *recessive_link));
+        }
+    }
+    return offspring;
+}
+
+void mutate_add_link(Genome &genome){
+   
 }

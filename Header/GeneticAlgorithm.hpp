@@ -16,6 +16,7 @@
 #include<future>
 #include<cassert>
 #include"Activation.hpp"
+#include"Genome.hpp"
 #include<map>
 #include<cstdlib>
 
@@ -44,15 +45,6 @@ struct Link_Gene{
     bool operator==(const Link_Gene &other) const{
         return (linkid == other.linkid);
     }
-};
-
-struct Genome{
-    int genome_id;
-    int num_inputs;
-    int num_outputs;
-    std:: vector<NeuronGene> neurons;
-    std:: vector<Link_Gene> links;
-
 };
 
 struct Individual{
