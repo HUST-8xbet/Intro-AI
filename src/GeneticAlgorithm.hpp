@@ -1,10 +1,12 @@
 #pragma once
 
+#include <stack>
 #include <random>
 #include <vector>
 #include <algorithm>
 #include <optional>
 #include <iostream>
+#include <unordered_set>
 
 #include "RNG.hpp"
 #include "Activation.hpp"
@@ -52,8 +54,23 @@ struct Genome{
     std:: vector<Link_Gene> links;
 
     // TODO can viet ham kiem tra vong lap
-    bool would_create_cycle(const int input_id, const int output_id) const {
-        return false;
+    bool would_create_cycle(const int input_id, const int output_id, std:: vector<Link_Gene> links) const {
+        if(input_id == output_id) return true; // Neu input va output giong nhau thi ko co vong lap
+
+        std:: unordered_set<int> visited;
+        visited.insert(input_id); // Danh dau input da duoc tham
+        while(1){
+            int num_added = 0;
+            for(auto &link : links){
+                if(visited.count(link.linkid.input_id) && !visited.count(link.linkid.output_id)){
+                    if(link.linkid.input_id == output_id) return true; // Neu tim thay vong lap
+                    visited.insert(link.linkid.output_id); // Danh dau output da duoc tham
+                    num_added++;
+                }
+            }
+            if (num_added == 0)  return false; // Neu ko co link nao duoc them thi ko co vong lap
+            
+        };
     }
 
     std::vector<int> make_input_ids() const {

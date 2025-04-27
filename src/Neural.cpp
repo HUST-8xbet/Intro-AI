@@ -1,7 +1,7 @@
 #include <vector>
 #include <unordered_map>
 #include <cassert>
-
+#include <queue>
 #include "Activation.hpp"
 #include "GeneticAlgorithm.hpp"
 
@@ -78,7 +78,57 @@ class FeedForwardNetwork{
 std::vector<std::vector<int>> feed_forward_layer(std::vector<int> inputs, 
     std::vector<int> outputs, std:: vector<Link_Gene> links)
 {
+    // Xay dung do thi vao ra cho cac node
+    std::unordered_map<int, std::vector<int>> forward_graph;
+    std::unordered_map<int, int> indegree; // số lượng đầu vào mỗi node
 
+    //Khoi tao cac node co indegree = 0
+    for (const auto &link : links) {
+        indegree[link.linkid.output_id]++;
+        forward_graph[link.linkid.input_id].push_back(link.linkid.output_id);
+        if(indegree.find(link.linkid.input_id) == indegree.end()) {
+            indegree[link.linkid.input_id] = 0; // Khoi tao indegree cho cac node ko co lien ket
+        }
+    }
+
+    //Queue cac nut co indegree = 0
+    std::queue<int> q;
+    std::unordered_map<int, int> node_layer;    // luu layer cho cac node
+    for(const auto& [node_id, degree] : indegree) {
+        if (degree == 0) {
+            q.push(node_id);
+            node_layer[node_id] = 0; // Khoi tao layer cho cac node co indegree = 0
+        }
+    }
+
+    // Topological Sort để gán layer
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+
+        for (int neighbor : forward_graph[node]) {
+            indegree[neighbor]--;
+            if (indegree[neighbor] == 0) {
+                q.push(neighbor);
+                node_layer[neighbor] = node_layer[node] + 1; // Gan layer cho cac node lien ket
+            }
+        }
+    }
+
+    // Gom cac node theo layer
+    int max_layer = 0;
+    for (const auto& [node_id, layer] : node_layer) {
+        if (layer > max_layer) {
+            max_layer = layer;
+        }
+    }
+    std::vector<std::vector<int>> layers(max_layer + 1);
+    for (const auto& [node_id, layer] : node_layer) {
+        layers[layer].push_back(node_id);
+    }    
+    return layers;
+
+     
 }
 
 
@@ -94,7 +144,7 @@ static FeedForwardNetwork create_from_geoneme(Genome &genome) {
             for (auto link : genome.links) {
                 if (neuron_id == link.linkid.output_id) {
                     // NOTE khoi tao neuron o day
-                    neuron_inputs.emplace_back(NeuronInput{link.linkid.input_id, link.weight, });
+                    neuron_inputs.emplace_back(NeuronInput{link.linkid.input_id, link.weight});
                 }
             }
             auto neuron_gene = std::find(genome.neurons.begin(), genome.neurons.end(),
