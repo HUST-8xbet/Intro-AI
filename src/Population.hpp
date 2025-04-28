@@ -65,13 +65,13 @@ struct SnakeState {
 vector<double> get_inputs(const SnakeState& state) {
     vector<double> inputs;
     // Lý do chuẩn hóa: Khoảng cách càng gần, giá trị 1.0 / dist càng lớn (rắn càng gần, mạng nơ-ron sẽ thấy nguy hiểm hơn).
-    auto[x, y] state.snake_head;
+    auto[x, y] = state.snake_head;
 
     auto calc_body_dis = [&] (int dx, int dy) {
         int cx = x + dx, cy = y + dy;    // / Vị trí hiện tại (cx, cy) được tính từ đầu rắn và hướng di chuyển (dx, dy) cy = y + dy;
         int dist = 1.0;
         while(cx >= 0 && cx < state.board_width && cy >= 0 && cy < state.board_height) {
-            if(find(state.snake_body.begin(), state.snake_body.end(), make_pair(cx,cy) != state.snake_body.end())) {
+            if(find(state.snake_body.begin(), state.snake_body.end(), make_pair(cx, cy)) != state.snake_body.end()) {
                 return 1.0 / dist;
             }
             dist++;
@@ -80,6 +80,11 @@ vector<double> get_inputs(const SnakeState& state) {
         }
         return 0.0;
 }
+    
+    inputs.push_back(calc_body_dis(-1, 0));  // LEFT
+    inputs.push_back(calc_body_dis(1, 0));   // RIGHT
+    inputs.push_back(calc_body_dis(0, -1));  // UP
+    inputs.push_back(calc_body_dis(0, 1));   // DOWN
 
 
     // Chuẩn hoá input về 0, 1 
@@ -106,5 +111,34 @@ vector<double> get_inputs(const SnakeState& state) {
 }
 // TODO chuan bi dau vao cho mang neuron
 vector<double> extract_inputs(const SnakeEngine &snake_engine) {
-    
+
+    // Gán thông tin từ SnakeEngine vào SnakeState
+    SnakeState state;
+
+    state.board_height = snake_engine.rows;
+    state.board_width = snake_engine.cols;
+    state.food_pos = make_pair(snake_engine.food.col, snake_engine.food.row);
+    state.snake_head = make_pair(snake_engine.snakeBody.front().col, snake_engine.snakeBody.front().row);
+
+    state.snake_body.clear();
+    // size_t ko bao gio am
+    for( size_t i = 1; i < snake_engine.snake_body.size(); i++ ) {
+        state.snake_body.push_back( make_pair(snake_engine.snakeBody[i].col, snake_engine.snakeBody[i].row) );
+    }
+
+    switch(snake_engine.headDirection) {
+        case Direction::Left : 
+            state.cur_direction = SnakeState::Direction::LEFT;
+            break;
+        case Direction::Right : 
+            state.cur_direction = SnakeState::Direction::RIGHT;
+            break;
+        case Direction::Up : 
+            state.cur_direction = SnakeState::Direction::UP;
+            break;
+        case Direction::Down : 
+            state.cur_direction = SnakeState::Direction::DOWN;
+            break;
+    }
+    return get_input(state);
 }

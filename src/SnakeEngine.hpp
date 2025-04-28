@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <List>
+using namespace std;
 
 
 enum class Direction {
@@ -29,7 +30,8 @@ private:
     void createSnake();
 
 public:
-    std::deque<Coordinates> snakeBody;
+    // Dùng deque do thân rắn rời rạc 
+    deque<Coordinates> snakeBody;
     Direction headDirection;
     Coordinates food;
     int score;
