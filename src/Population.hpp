@@ -109,6 +109,9 @@ vector<double> get_inputs(const SnakeState& state) {
     
     return inputs;
 }
+
+
+
 // TODO chuan bi dau vao cho mang neuron
 vector<double> extract_inputs(const SnakeEngine &snake_engine) {
 
@@ -122,7 +125,7 @@ vector<double> extract_inputs(const SnakeEngine &snake_engine) {
 
     state.snake_body.clear();
     // size_t ko bao gio am
-    for( size_t i = 1; i < snake_engine.snake_body.size(); i++ ) {
+    for( size_t i = 1; i < snake_engine.snakeBody.size(); i++ ) {
         state.snake_body.push_back( make_pair(snake_engine.snakeBody[i].col, snake_engine.snakeBody[i].row) );
     }
 
@@ -140,5 +143,5 @@ vector<double> extract_inputs(const SnakeEngine &snake_engine) {
             state.cur_direction = SnakeState::Direction::DOWN;
             break;
     }
-    return get_input(state);
+    return get_inputs(state);
 }
