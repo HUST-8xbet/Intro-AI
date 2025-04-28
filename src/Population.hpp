@@ -3,6 +3,8 @@
 #include "config.hpp"
 #include "GeneticAlgorithm.hpp"
 #include "SnakeEngine.hpp"
+using namespace std;
+
 
 class Population
 {
@@ -14,7 +16,7 @@ public:
     }
 
 private:
-    std::vector<Individual> individuals;
+    vector<Individual> individuals;
     GenomeIndexer m_genome_indexer;
     double best_fitness;
 
@@ -35,7 +37,7 @@ private:
         return genome;
     }
     
-    std::vector<Individual> reproduce() {
+    vector<Individual> reproduce() {
 
     }
 
@@ -49,6 +51,6 @@ private:
 };
 
 // TODO chuan bi dau vao cho mang neuron
-std::vector<double> extract_inputs(const SnakeEngine &snake_engine) {
+vector<double> extract_inputs(const SnakeEngine &snake_engine) {
     
 }

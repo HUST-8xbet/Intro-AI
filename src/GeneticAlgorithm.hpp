@@ -9,8 +9,12 @@
 #include "RNG.hpp"
 #include "Activation.hpp"
 #include "config.hpp"
+#include<vector>
+#include <utility>
+#include <set>
+using namespace std;
 
-//Lai ghep GA Neuron
+typedef pair<int, int> Connection;
 
 struct NeuronGene {
     int neuron_id;
@@ -33,7 +37,7 @@ struct Link_ID{
 struct Link_Gene{
     Link_ID linkid;
     double weight;
-    bool is_enable;
+    bool enabled;
 
     bool operator==(const Link_Gene &other) const{
         return (linkid == other.linkid);
@@ -48,24 +52,49 @@ struct Genome{
     int genome_id;
     int num_inputs;
     int num_outputs;
-    std:: vector<NeuronGene> neurons;
-    std:: vector<Link_Gene> links;
+    vector<NeuronGene> neurons;
+    vector<Link_Gene> links;
 
-    // TODO can viet ham kiem tra vong lap
-    bool would_create_cycle(const int input_id, const int output_id) const {
-        return false;
+// Hàm kiểm tra có chu trình hay ko?
+bool cycle_check(const vector<Connection>& connections, Connection test) {
+    int in = test.first;
+    int out = test.second;
+    
+    if( in == out ) return true;
+    set<int> visited;
+    visited.insert(out);
+
+    while(true) {
+        int num_added = 0;
+        for( const auto& conn : connections) {
+            int a = conn.first;
+            int b = conn.second;
+            if( visited.count(a) && !visited.count(b) ) {
+                if(b == in) {
+                    return true;
+                }
+
+                visited.insert(b);
+                num_added++;
+            }
+        }
+
+        if(num_added == 0) {
+            return false;
+        }
     }
+}
 
-    std::vector<int> make_input_ids() const {
-        std::vector<int> input_ids;
+    vector<int> make_input_ids() const {
+        vector<int> input_ids;
         for (int i = 0; i < num_inputs; i++) {
             input_ids.push_back(-i-1);
         }
         return input_ids;
     }
 
-    std::vector<int> make_output_ids() const {
-        std::vector<int> output_ids;
+    vector<int> make_output_ids() const {
+        vector<int> output_ids;
         for (int i = 0; i < num_outputs; i++) {
             output_ids.push_back(i);
         }
@@ -84,7 +113,7 @@ struct Genome{
             links.push_back(newlink);
         }
         else{
-            std::cout << "Link with ID (" << newlink.linkid.input_id << ", " << newlink.linkid.output_id
+            cout << "Link with ID (" << newlink.linkid.input_id << ", " << newlink.linkid.output_id
             << ") already exists!" << std::endl;
         }
     }
@@ -98,11 +127,11 @@ struct Genome{
             neurons.push_back(newNeuron);
         }
         else{
-            std::cout << "Neuron with ID " << newNeuron.neuron_id << " already exists!" << std::endl;
+            cout << "Neuron with ID " << newNeuron.neuron_id << " already exists!" << std::endl;
         }
     }
 
-    std:: optional<NeuronGene> find_neurons(int neuron_id) const{
+     optional<NeuronGene> find_neurons(int neuron_id) const{
         auto it = std::find_if(neurons.begin(), neurons.end(),
         [neuron_id](const NeuronGene& neuron) {
             return neuron.neuron_id == neuron_id;
@@ -113,7 +142,7 @@ struct Genome{
         return std::nullopt;
     }
 
-    std:: optional<Link_Gene> find_link(const Link_ID& link_id) const{
+    optional<Link_Gene> find_link(const Link_ID& link_id) const{
         auto it = std::find_if(links.begin(), links.end(),
         [link_id](const Link_Gene& link){
             return link.linkid == link_id;
@@ -126,7 +155,7 @@ struct Genome{
 
     // NOTE lien quan den chon ngau nhien
     int choose_random_input_or_hidden() const {
-        std::vector<int> input_or_hidden_ids = make_input_ids();
+        vector<int> input_or_hidden_ids = make_input_ids();
         for (const NeuronGene& neuron : neurons) {
             if (neuron.neuron_id >= num_outputs)
                 input_or_hidden_ids.emplace_back(neuron.neuron_id);
@@ -141,7 +170,7 @@ struct Genome{
 
     // NOTE lien quan den chon ngau nhien
     int choose_random_hidden() const {
-        std::vector<int> hidden_ids;
+        vector<int> hidden_ids;
         for (const NeuronGene& neuron : neurons) {
             if (neuron.neuron_id >= num_outputs)
                 hidden_ids.emplace_back(neuron.neuron_id);
@@ -155,7 +184,7 @@ struct Individual{
     double fitness;
 };
 
-// class tao Chi so cho genome ko giong id bo me
+// class tao Chi so cho genome ko giong ID bo me
 class GenomeIndexer {
     private:
         int current_genome_id;

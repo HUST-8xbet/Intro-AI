@@ -6,34 +6,34 @@
 #include "Activation.hpp"
 #include "GeneticAlgorithm.hpp"
 #include "RNG.hpp"
+#include <chrono>
 
-// NOTE lien quan den chon ngau nhien
-//Lai ghep neuron con dua tren thuoc tinh cha me
-NeuronGene crossover_neuron(const NeuronGene &a, const NeuronGene &b){
+NeuronGene crossover_neuron(const NeuronGene &a, const NeuronGene &b, double prob = 0.5) {
     assert(a.neuron_id == b.neuron_id);
-    int neuron_id = a.neuron_id;
-    double bias = RNG::choose(0.5, a.bias, b.bias);
-    Activation activation  = RNG::choose(0.5, a.activation, b.activation); 
-    
-    return {neuron_id, bias, activation};
+    return {
+        a.neuron_id,
+        RNG::choose(prob, a.bias, b.bias),
+        RNG::choose(0.5, a.activation, b.activation),
+    };
 }
 
 // NOTE lien quan den chon ngau nhien
-Link_Gene crossover_linkgene(const Link_Gene &a, const Link_Gene &b){
+Link_Gene crossover_linkgene(const Link_Gene &a, const Link_Gene &b, double prob = 0.5){
     assert(a.linkid == b.linkid);
-    Link_ID linkid = a.linkid;
-    double weight = RNG::choose(0.5, a.weight, b.weight);
-    bool is_enable = RNG::choose(0.5, a.is_enable, b.is_enable);
-    
-    return {linkid, weight, is_enable};
+    return {
+        a.linkid,
+        RNG::choose(prob, a.weight, b.weight),
+        RNG::choose(prob, a.enabled, b.enabled),
+    };
 }
 
 Genome crossover(const Individual &dominant, const Individual &recessive, GenomeIndexer &m_genome_indexer){
     Genome offspring{m_genome_indexer.next_genome(), dominant.genome.num_inputs, dominant.genome.num_outputs};
+
     //Ke thua neuron genes 
     for(const auto &dominant_neuron: dominant.genome.neurons){
         int neuron_id = dominant_neuron.neuron_id;
-        std::optional<NeuronGene> recessive_neuron = recessive.genome.find_neurons(neuron_id);
+        optional<NeuronGene> recessive_neuron = recessive.genome.find_neurons(neuron_id);
         if(!recessive_neuron){
             offspring.add_neuron(dominant_neuron);
         }
@@ -41,6 +41,8 @@ Genome crossover(const Individual &dominant, const Individual &recessive, Genome
             offspring.add_neuron(crossover_neuron(dominant_neuron, *recessive_neuron));
         }
     }
+
+    // Ke thua neuron link
     for(const auto &dominant_link : dominant.genome.links){
         Link_ID link_id = dominant_link.linkid;
         std::optional<Link_Gene> recessive_link = recessive.genome.find_link(link_id);
@@ -59,13 +61,14 @@ void mutate_add_link(Genome &genome) {
     int input_id = genome.choose_random_input_or_hidden();
     int output_id = genome.choose_random_output_or_hidden();
 
-    std::optional<Link_Gene> existing_link = genome.find_link(Link_ID{input_id, output_id});
+    optional<Link_Gene> existing_link = genome.find_link(Link_ID{input_id, output_id});
     if (existing_link) {
-        existing_link->is_enable = true;
+        existing_link->enabled = true;
         return;
     }
-
-    if (genome.would_create_cycle(input_id, output_id)) {
+       
+    vector<Connection> connections;
+    if (genome.cycle_check(connections, {input_id, output_id})) {
         return;
     }
 
@@ -89,7 +92,7 @@ void mutate_add_neuron(Genome &genome, GenomeIndexer &m_genome_indexer) {
     }
 
     auto link_to_split = RNG::select_randomly(genome.links.begin(), genome.links.end());
-    link_to_split->is_enable = false;
+    link_to_split->enabled = false;
 
     // NOTE co khoi tao neuron
     NeuronGene new_neuron{m_genome_indexer.next_neuron(), 0.0, relu{}};
@@ -108,7 +111,7 @@ void mutate_remove_neuron(Genome &genome) {
     }
 
     int remove_id = genome.choose_random_hidden();
-    auto neuron_to_remove = std::find_if(genome.neurons.begin(), genome.neurons.end(),
+    auto neuron_to_remove = find_if(genome.neurons.begin(), genome.neurons.end(),
         [remove_id](const NeuronGene& neuron) {
             return neuron.neuron_id == remove_id;
         });
@@ -122,9 +125,46 @@ void mutate_remove_neuron(Genome &genome) {
     genome.neurons.erase(neuron_to_remove);
 }
 
-// TODO Thieu phan dot bien khong lam thay doi cau truc
+
+// Dot bien khong lam thay doi cau truc
+void mutate_weights_and_biases(Genome genome, double weight_mutation_rate, double link_mutation_rate, double delta_range) {
+    for(auto& link : genome.links) {
+        if(RNG::get_double() < link_mutation_rate) {
+            double delta = RNG::get_double_in_range(-delta_range, delta_range);
+            link.weight += delta;
+        }
+    }
+}
+
+// Dot bien lam thay doi cau truc
+void mutate_structure(Genome &genome, GenomeIndexer &genome_indexer) {
+    double prob_add_link = 0.25;
+    double prob_remove_link = 0.25;
+    double prob_add_neuron = 0.25;
+    double prob_remove_neuron = 0.25;
+
+    double r = RNG::get_double();
+
+    if( r < prob_add_link ) {
+        mutate_add_link(genome);
+    }
+    else if( r < prob_add_link + prob_remove_link ) {
+        mutate_remove_link(genome);
+    }
+    else if( r < prob_add_link + prob_remove_link + prob_add_neuron) {
+        mutate_add_neuron(genome, genome_indexer);
+    }
+    else {
+        mutate_remove_neuron(genome);
+    }
+
+}
+
 
 // TODO Sau do dinh nghia ham dot bien chung
-void mutate(Genome &genome) {
-    
+void mutate(Genome &genome, GenomeIndexer& genome_indexer, 
+    double link_mutation_rate, double weight_mutation_rate, double delta_range,
+    double add_link_rate, double add_neuron_rate) {
+    mutate_weights_and_biases(genome, weight_mutation_rate, link_mutation_rate, delta_range);
+    mutate_structure(genome, genome_indexer);
 }
