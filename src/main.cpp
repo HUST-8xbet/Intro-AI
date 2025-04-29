@@ -2,14 +2,13 @@
 #include <SFML/Window.hpp>
 
 #include <iostream>
+#include <vector>
 
 #include "config.hpp"
 #include "GameRenderer.hpp"
-#include "GeneticAlgorithm.hpp"
+#include "Population.hpp"
 
-int main()
-{
-
+void start_game() {
     sf::RenderWindow window(sf::VideoMode({cf::WindowWidth, cf::WindowHeight}),
                             "My window",
                             sf::Style::Titlebar | sf::Style::Close);
@@ -35,18 +34,26 @@ int main()
                     if (keyReleased->scancode == sf::Keyboard::Scancode::Up) 
                     {
                         snakeEngine.update(Direction::Up);
+                        std::vector<double> inputs = extract_inputs(snakeEngine);
+                        print_input(inputs);
                     } 
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::Down) 
                     {
                         snakeEngine.update(Direction::Down);
+                        std::vector<double> inputs = extract_inputs(snakeEngine);
+                        print_input(inputs);
                     } 
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::Left) 
                     {
                         snakeEngine.update(Direction::Left);
+                        std::vector<double> inputs = extract_inputs(snakeEngine);
+                        print_input(inputs);
                     } 
                     else if (keyReleased->scancode == sf::Keyboard::Scancode::Right) 
                     {
                         snakeEngine.update(Direction::Right);
+                        std::vector<double> inputs = extract_inputs(snakeEngine);
+                        print_input(inputs);
                     }
                 }
             }
@@ -61,6 +68,7 @@ int main()
                 }
             }
         }
+
     
         // ve ra man hinh
         window.clear(sf::Color::Black);
@@ -68,3 +76,15 @@ int main()
         window.display();
     }
 }
+
+void train() {
+    Population new_population;
+    new_population.run(100);
+}
+
+int main()
+{
+    train();
+}
+
+

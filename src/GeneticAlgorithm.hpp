@@ -5,10 +5,21 @@
 #include <algorithm>
 #include <optional>
 #include <iostream>
+#include <unordered_set>
 
 #include "RNG.hpp"
 #include "Activation.hpp"
 #include "config.hpp"
+
+// NOTE Chú ý quan trọng về việc đánh ID các neuron
+// Các neuron input có ID là số âm từ -1, -2,... đến -num_input (xem file config)
+// Các neuron output có ID từ 0, 1,... đến num_ouput-1
+// Các neuron hidden có ID bắt đầu num_output
+// và được đánh số tiếp mỗi khi xảy ra đột biến thêm neuron (xem hàm mutate_add_neuron)
+
+// NOTE Trong vector<NeuronGene> neurons của genome KHÔNG lưu các neuron input
+// bởi vì các neuron input không cần tính giá trị kích hoạt mà lấy bằng input luôn
+// cho nên nó cũng không có bias và cũng không cần lưu
 
 //Lai ghep GA Neuron
 
@@ -53,7 +64,22 @@ struct Genome{
 
     // TODO can viet ham kiem tra vong lap
     bool would_create_cycle(const int input_id, const int output_id) const {
-        return false;
+        if(input_id == output_id) return true; // Neu input va output giong nhau thi ko co vong lap
+
+        std:: unordered_set<int> visited;
+        visited.insert(output_id); // Danh dau input da duoc tham
+        while(1){
+            int num_added = 0;
+            for(auto &link : links){
+                if(visited.count(link.linkid.input_id) && !visited.count(link.linkid.output_id)){
+                    if(link.linkid.output_id == input_id) return true; // Neu tim thay vong lap
+                    visited.insert(link.linkid.output_id); // Danh dau output da duoc tham
+                    num_added++;
+                }
+            }
+            if (num_added == 0)  return false; // Neu ko co link nao duoc them thi ko co vong lap
+            
+        };
     }
 
     std::vector<int> make_input_ids() const {
@@ -171,19 +197,6 @@ class GenomeIndexer {
         }
 };
 
-    
-//Dinh nghia ham random 
-//class RNG {
-//    public:
-//        RNG() : gen(std::random_device{}()) {}
-//    
-//        template <typename T>
-//        T choose(double prob, const T &val1, const T &val2) {
-//            std::bernoulli_distribution d(prob); // Phan phoi nhi thuc
-//            return d(gen) ? val1 : val2;
-//        }
-//
-//    private:
-//        std::mt19937 gen;
-//    };
-//extern RNG rng;
+Genome crossover(const Individual &dominant, const Individual &recessive, GenomeIndexer &m_genome_indexer);
+
+void mutate(Genome &genome, GenomeIndexer& genome_indexer);

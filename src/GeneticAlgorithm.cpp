@@ -4,12 +4,17 @@
 #include <optional>
 
 #include "Activation.hpp"
+#include "Population.hpp"
 #include "GeneticAlgorithm.hpp"
 #include "RNG.hpp"
 
+//-------------------------------------------------------------------------------------------------------
+// Crossover
+//-------------------------------------------------------------------------------------------------------
+
 // NOTE lien quan den chon ngau nhien
 //Lai ghep neuron con dua tren thuoc tinh cha me
-NeuronGene crossover_neuron(const NeuronGene &a, const NeuronGene &b){
+NeuronGene crossover_neuron(const NeuronGene &a, const NeuronGene &b) {
     assert(a.neuron_id == b.neuron_id);
     int neuron_id = a.neuron_id;
     double bias = RNG::choose(0.5, a.bias, b.bias);
@@ -54,6 +59,10 @@ Genome crossover(const Individual &dominant, const Individual &recessive, Genome
     }
     return offspring;
 }
+
+//-------------------------------------------------------------------------------------------------------
+// Structral mutate
+//-------------------------------------------------------------------------------------------------------
 
 void mutate_add_link(Genome &genome) {
     int input_id = genome.choose_random_input_or_hidden();
@@ -102,8 +111,10 @@ void mutate_add_neuron(Genome &genome, GenomeIndexer &m_genome_indexer) {
     genome.links.push_back(Link_Gene{{new_neuron.neuron_id, link_id.output_id}, weight, true});
 }
 
+
 void mutate_remove_neuron(Genome &genome) {
-    if (genome.neurons.empty()) {
+    // Khong co neuron hidden nao de remove ca
+    if (genome.neurons.size() == cf::num_output) {
         return;
     }
 
@@ -122,9 +133,49 @@ void mutate_remove_neuron(Genome &genome) {
     genome.neurons.erase(neuron_to_remove);
 }
 
-// TODO Thieu phan dot bien khong lam thay doi cau truc
+//-------------------------------------------------------------------------------------------------------
+// Non structral mutate
+//-------------------------------------------------------------------------------------------------------
 
-// TODO Sau do dinh nghia ham dot bien chung
-void mutate(Genome &genome) {
-    
+// REVIEW get_double_in_range trả về số ngẫu nhiên theo phân phối đều
+// Nhưng xem một số code họ hay lấy phân phối chuẩn hơn, có lẽ cần điều chỉnh
+// Đột biến không làm thay đổi cấu trúc
+void mutate_weights_and_biases(Genome &genome) {
+    for (auto& link : genome.links) {
+        if(RNG::get_double() < cf::link_mutation_rate) {
+            double delta = RNG::get_double_in_range(-cf::delta_range, cf::delta_range);
+            link.weight += delta;
+        }
+    }
+
+    for (auto& neuron : genome.neurons) {
+        if(RNG::get_double() < cf::neuron_mutation_rate) {
+            double delta = RNG::get_double_in_range(-cf::delta_range, cf::delta_range);
+            neuron.bias += delta;
+        }
+    }
+}
+
+// Dot bien lam thay doi cau truc
+void mutate_structure(Genome &genome, GenomeIndexer &genome_indexer) {
+    double r = RNG::get_double();
+
+    if( r < cf::prob_add_link ) {
+        mutate_add_link(genome);
+    }
+    else if( r < cf::prob_add_link + cf::prob_remove_link) {
+        mutate_remove_link(genome);
+    }
+    else if( r < cf::prob_add_link + cf::prob_remove_link + cf::prob_add_neuron) {
+        mutate_add_neuron(genome, genome_indexer);
+    }
+    else {
+        mutate_remove_neuron(genome);
+    }
+}
+
+// REVIEW Ở đây tất cả các cá thể trải qua đột biến cấu trúc trước rồi mới đột biến trọng số
+void mutate(Genome &genome, GenomeIndexer& genome_indexer) {
+    mutate_structure(genome, genome_indexer);
+    mutate_weights_and_biases(genome);
 }
