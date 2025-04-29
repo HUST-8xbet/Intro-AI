@@ -3,6 +3,7 @@
 #include <random>
 #include <iterator>
 
+
 // REVIEW tam thoi de vay
 namespace RNG {
     inline std::random_device rd;

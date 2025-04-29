@@ -12,6 +12,11 @@
 #include<vector>
 #include <utility>
 #include <set>
+#include <cereal/types/variant.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/optional.hpp>
+
+
 using namespace std;
 
 typedef pair<int, int> Connection;
@@ -20,24 +25,45 @@ struct NeuronGene {
     int neuron_id;
     double bias;
     Activation activation;
+
+    template <class Archive> 
+    void serialize(Archive& ar) {
+        ar(neuron_id, bias, activation);
+    }
+
+
     bool operator==(const NeuronGene &other) const{
         return neuron_id == other.neuron_id;
     }
+
+
 };
 
 //Synurp trong mang
 struct Link_ID{ 
     int input_id;
     int output_id;
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(input_id, output_id);
+    } 
+
     bool operator==(const Link_ID &other) const{
         return (input_id == other.input_id) && (output_id == other.output_id);
     }
+
 };
 
 struct Link_Gene{
     Link_ID linkid;
     double weight;
     bool enabled;
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(linkid, weight, enabled);
+    } 
 
     bool operator==(const Link_Gene &other) const{
         return (linkid == other.linkid);
@@ -54,6 +80,11 @@ struct Genome{
     int num_outputs;
     vector<NeuronGene> neurons;
     vector<Link_Gene> links;
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(genome_id, num_inputs, num_outputs, neurons, links );
+    } 
 
 // Hàm kiểm tra có chu trình hay ko?
 bool cycle_check(const vector<Connection>& connections, Connection test) {
@@ -182,6 +213,11 @@ bool cycle_check(const vector<Connection>& connections, Connection test) {
 struct Individual{
     Genome genome;
     double fitness;
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(genome, fitness);
+    }
 };
 
 // class tao Chi so cho genome ko giong ID bo me
