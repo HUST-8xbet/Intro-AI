@@ -3,6 +3,7 @@
 #include <cmath>
 #include <utility>
 #include <iostream>
+#include <fstream>
 
 #include "Population.hpp"
 #include "Neural.hpp"
@@ -200,3 +201,4 @@ std::vector<double> extract_inputs(const SnakeEngine &state) {
 
     return inputs;
 }
+
