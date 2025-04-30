@@ -3,6 +3,8 @@
 #include "config.hpp"
 #include "GeneticAlgorithm.hpp"
 #include "SnakeEngine.hpp"
+#include<RNG.hpp>
+#include<config.hpp>
 using namespace std;
 
 
@@ -19,6 +21,31 @@ private:
     vector<Individual> individuals;
     GenomeIndexer m_genome_indexer;
     double best_fitness;
+
+    // Sinh the he tiep theo
+    void evole_new_generation() {
+        for(auto& ind : individuals) {
+            update_fitness();
+        }
+
+        update_best();
+        individuals = reproduce();
+    }
+
+
+    void update_fitness(Individual& ind) {
+        SnakeEngine engine(cf::NumRows, cf::Num);
+        engine.newGame();
+
+        GenomeEvaluator evaluator(ind.genome);
+
+        int score = 0, steps = 0; 
+        while(!engine::GameOver() && steps < cf::max_steps) {
+            vector<double> inputs = extract_inputs(engine);
+            vector<double> outputs = evaluator.evaluate(inputs);
+        }
+    }
+
 
     Genome new_genome() {
         Genome genome{m_genome_indexer.next_genome(), cf::num_input, cf::num_output};
@@ -38,17 +65,50 @@ private:
     }
     
     vector<Individual> reproduce() {
+        vector<Individual> new_generation;
+        // Chọn ra ngẫu nhiên các các thể từ dân số hiện tại và tạo ra cá thể mới 
+        new_generation.push_back(individuals[0]);
+        for( int i = 0; i < cf::population_size; i++ ) {
 
+            int parent1_index = RNG::get_int_in_range(0, individuals.size() - 1);
+            int parent2_index = RNG::get_int_in_range(0, individuals.size() - 1);
+
+            Individual parent1 = individuals[parent1_index];
+            Individual parent2 = individuals[parent2_index];
+
+            if(parent2.fitness > parent1.fitness) 
+                swap(parent1, parent2);
+            
+            // Crossover 
+            Genome child_genome = crossover(parent1, parent2, m_genome_indexer);
+
+            // Mutation
+            mutate(child_genome, m_genome_indexer, cf::link_mutation_rate, 
+                    cf::weight_mutation_rate, 
+                    cf::delta_range, 
+                    cf::add_link_rate,  
+                    cf::add_neuron_rate);
+            new_generation.push_back(make_pair(child_genome, 0));  //Fitness se duoc tinh sau
+        }
+        return new_generation;
     }
 
     void update_best() {
-
+        if(individuals.empty()) return;
+        best_fitness = individuals[0].fitness;
+        for(auto& ind : individuals) {
+            if(ind.fitness > best_fitness) {
+                best_fitness = ind.fitness;
+            }
+        }
+        
+        // Sort the individuals based on fitness (giảm dần)
+        sort(individuals.begin(), individuals.end(), [](const Individual& a, const Individual& b) {
+            return a.fitness > b.fitness;
+        }
+       );
     }
 
-    void update_fitness(Individual &Individual) {
-
-    }
-};
 
 // Trang thai con ran 
 struct SnakeState {
@@ -60,6 +120,7 @@ struct SnakeState {
     enum class Direction {UP, DOWN, LEFT, RIGHT};
     Direction cur_direction;   // Huong hien tai cua con ran     
 };
+
 
 // Ham kiem tra xem co gap than ran khong
 vector<double> get_inputs(const SnakeState& state) {
@@ -145,3 +206,4 @@ vector<double> extract_inputs(const SnakeEngine &snake_engine) {
     }
     return get_inputs(state);
 }
+

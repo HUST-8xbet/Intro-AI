@@ -15,8 +15,6 @@
 #include <cereal/types/variant.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/optional.hpp>
-
-
 using namespace std;
 
 typedef pair<int, int> Connection;
@@ -148,6 +146,8 @@ bool cycle_check(const vector<Connection>& connections, Connection test) {
             << ") already exists!" << std::endl;
         }
     }
+
+
     void add_neuron(const NeuronGene& newNeuron){
         auto it = std::find_if(neurons.begin(), neurons.end(),
         [&newNeuron](const NeuronGene& neuron) {
@@ -218,6 +218,7 @@ struct Individual{
     void serialize(Archive& ar) {
         ar(genome, fitness);
     }
+    
 };
 
 // class tao Chi so cho genome ko giong ID bo me

@@ -93,6 +93,7 @@ void SnakeEngine::update(const Direction &input) {
         break;
     }
     
+    
     if (hitWall(nextPos) || (hitBody(nextPos) && !(nextPos == snakeBody.back()))) {
         state = GameState::GameOver;
     }
@@ -133,4 +134,9 @@ void SnakeEngine::newGame() {
 
 bool Coordinates::operator== (const Coordinates &other) const {
     return (col == other.col) && (row == other.row);
+}
+
+bool isGameOver() const;
+bool SnakeEngine::isGameOver() const {
+    return state = GameState::GameOver;
 }

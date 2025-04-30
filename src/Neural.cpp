@@ -123,7 +123,7 @@ static  set<int> required_for_output(const vector<int> inputs, const vector<int>
     return required;
 }
 
-
+// Hàm sắp xếp các neuron thành layers
 static vector< set<int> > feed_forward_layer( const vector<int>& inputs, const vector<int>& outputs, const vector<pair<int, int>>& connections) {
         set<int> required = required_for_output(inputs, outputs, connections);
         set<int> s(inputs.begin(),inputs.end());        // Nhung node da co gia tri roi (input + đã tính xong)
@@ -170,19 +170,16 @@ static vector< set<int> > feed_forward_layer( const vector<int>& inputs, const v
 
 };
 
-// TODO Sap xep cac neuron thanh cac layers
-vector<vector<int>> sort_neuron_by_layers(vector<int> inputs, vector<int> outputs, vector<Link_Gene> links)
-{
-
-}
-
-
-static FeedForwardNetwork create_from_geoneme(Genome &genome) {
+// Hàm tạo mạng hoàn chỉnh 
+static FeedForwardNetwork create_from_genome(Genome &genome) {
     vector<int> inputs = genome.make_input_ids();
     vector<int> outputs = genome.make_output_ids();
     vector<std::vector<int>> layers = feed_forward_layer(inputs, outputs, genome.links);
 
     vector<Neuron> neurons;
+
+    // Duyệt qua các neuron để thu thập input output 
+    // neuron_id là neuron sắp được khởi tạo
     for (auto &layer : layers) {
         for (int neuron_id : layer) {
             vector<NeuronInput> neuron_inputs;
@@ -192,7 +189,10 @@ static FeedForwardNetwork create_from_geoneme(Genome &genome) {
                     neuron_inputs.emplace_back(NeuronInput{link.linkid.input_id, link.weight});
                 }
             }
-            auto neuron_gene = std::find(genome.neurons.begin(), genome.neurons.end(),
+
+            // Tìm gene mô tả neuron này trong Genome. Nếu tìm thấy, tạo neuron tương ứng với bias, activation và input của nó. 
+            // Sau đó, thêm neuron vào mạng.
+            auto neuron_gene = find(genome.neurons.begin(), genome.neurons.end(),
                      NeuronGene{neuron_id});
             assert(neuron_gene != genome.neurons.end());
             neurons.emplace_back(

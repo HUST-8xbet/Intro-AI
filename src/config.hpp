@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+
 namespace cf {
 
     //---------------------------------------------------------
@@ -32,5 +33,12 @@ namespace cf {
     inline unsigned int const num_output = 4;
 
     inline unsigned int const max_steps = 1000;
+
+    // Phần này nên để rate bao nhiêu? 
+    constexpr double link_mutation_rate = 0.1;
+    constexpr double weight_mutation_rate = 0.8;
+    constexpr double delta_range = 0.5;
+    constexpr double add_link_rate = 0.25;
+    constexpr double add_neuron_rate = 0.25;
 }
 
