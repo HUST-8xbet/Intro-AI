@@ -28,8 +28,11 @@ struct Coordinates
 {
     int col;
     int row;
-    bool operator== (const Coordinates &a) const;
+    bool operator== (const Coordinates &a) const{
+        return (col == a.col) && (row == a.row);
+    };
 };
+
 
 class SnakeEngine
 {

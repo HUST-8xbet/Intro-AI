@@ -4,6 +4,8 @@
 #include "GameRenderer.hpp"
 #include "Serializer.hpp"
 
+
+
 void start_game() {
     sf::RenderWindow window(sf::VideoMode({cf::WindowWidth, cf::WindowHeight}),
                             "My window",
@@ -98,8 +100,10 @@ static Genome new_genome() {
 int main()
 {
     // Test thử tuần tự hóa
-    Population population;
-    save_population_json(population, "data.json");
+    Genome genome = new_genome();
+   // print_genome(genome);
+  //  print_layers(feed_forward_layer(genome.make_input_ids(), genome.make_output_ids(), genome.links));
+   
 }
 
 
