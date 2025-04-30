@@ -1,16 +1,27 @@
 #pragma once
 
-#include <stack>
-#include <random>
-#include <vector>
 #include <algorithm>
 #include <optional>
 #include <iostream>
 #include <unordered_set>
 
+#include <cereal/types/vector.hpp>
+#include <cereal/access.hpp>
+
 #include "RNG.hpp"
 #include "Activation.hpp"
 #include "config.hpp"
+
+
+// NOTE Chú ý quan trọng về việc đánh ID các neuron
+// Các neuron input có ID là số âm từ -1, -2,... đến -num_input (xem file config)
+// Các neuron output có ID từ 0, 1,... đến num_ouput-1
+// Các neuron hidden có ID bắt đầu num_output
+// và được đánh số tiếp mỗi khi xảy ra đột biến thêm neuron (xem hàm mutate_add_neuron)
+
+// NOTE Trong vector<NeuronGene> neurons của genome KHÔNG lưu các neuron input
+// bởi vì các neuron input không cần tính giá trị kích hoạt mà lấy bằng input luôn
+// cho nên nó cũng không có bias và cũng không cần lưu
 
 //Lai ghep GA Neuron
 
@@ -18,6 +29,15 @@ struct NeuronGene {
     int neuron_id;
     double bias;
     Activation activation;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+    archive(CEREAL_NVP(neuron_id),
+            CEREAL_NVP(bias),
+            CEREAL_NVP(activation));
+    }
+
     bool operator==(const NeuronGene &other) const{
         return neuron_id == other.neuron_id;
     }
@@ -27,6 +47,14 @@ struct NeuronGene {
 struct Link_ID{ 
     int input_id;
     int output_id;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+    archive(CEREAL_NVP(input_id),
+            CEREAL_NVP(output_id));
+    }
+
     bool operator==(const Link_ID &other) const{
         return (input_id == other.input_id) && (output_id == other.output_id);
     }
@@ -36,6 +64,14 @@ struct Link_Gene{
     Link_ID linkid;
     double weight;
     bool is_enable;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+    archive(CEREAL_NVP(linkid),
+            CEREAL_NVP(weight),
+            CEREAL_NVP(is_enable));
+    }
 
     bool operator==(const Link_Gene &other) const{
         return (linkid == other.linkid);
@@ -53,17 +89,26 @@ struct Genome{
     std:: vector<NeuronGene> neurons;
     std:: vector<Link_Gene> links;
 
-    // TODO can viet ham kiem tra vong lap
-    bool would_create_cycle(const int input_id, const int output_id, std:: vector<Link_Gene> links) const {
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+    archive(CEREAL_NVP(genome_id),
+            CEREAL_NVP(num_inputs),
+            CEREAL_NVP(num_outputs),
+            CEREAL_NVP(neurons),
+            CEREAL_NVP(links));
+    }
+
+    bool would_create_cycle(const int input_id, const int output_id) const {
         if(input_id == output_id) return true; // Neu input va output giong nhau thi ko co vong lap
 
         std:: unordered_set<int> visited;
-        visited.insert(input_id); // Danh dau input da duoc tham
+        visited.insert(output_id); // Danh dau input da duoc tham
         while(1){
             int num_added = 0;
             for(auto &link : links){
                 if(visited.count(link.linkid.input_id) && !visited.count(link.linkid.output_id)){
-                    if(link.linkid.input_id == output_id) return true; // Neu tim thay vong lap
+                    if(link.linkid.output_id == input_id) return true; // Neu tim thay vong lap
                     visited.insert(link.linkid.output_id); // Danh dau output da duoc tham
                     num_added++;
                 }
@@ -170,37 +215,42 @@ struct Genome{
 struct Individual{
     Genome genome;
     double fitness;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+    archive(CEREAL_NVP(genome),
+            CEREAL_NVP(fitness));
+    }
 };
 
 // class tao Chi so cho genome ko giong id bo me
 class GenomeIndexer {
-    private:
-        int current_genome_id;
-        int current_neuron_id; // bat dau tu num_ouput
-    public:
-        GenomeIndexer() : current_genome_id(0), current_neuron_id(cf::num_output) {}
-    
-        int next_genome() { 
-            return current_genome_id++;  // Cấp phát ID mới, sau đó tăng current_id
-        }
-        int next_neuron() { 
-            return current_neuron_id++;  // Cấp phát ID mới, sau đó tăng current_id
-        }
+private:
+    int current_genome_id;
+    int current_neuron_id; // bat dau tu num_ouput
+
+    friend class cereal::access;
+    template <class Archive>
+    void serialize(Archive & archive)
+    {
+        archive(CEREAL_NVP(current_genome_id),
+                CEREAL_NVP(current_neuron_id));
+    }
+public:
+    GenomeIndexer() : current_genome_id(0), current_neuron_id(cf::num_output) {}
+    GenomeIndexer(int current_genome_id, int current_neuron_id) :
+        current_genome_id(current_genome_id),
+        current_neuron_id(current_neuron_id) {}
+
+    int next_genome() { 
+        return current_genome_id++;  // Cấp phát ID mới, sau đó tăng current_id
+    }
+    int next_neuron() { 
+        return current_neuron_id++;  // Cấp phát ID mới, sau đó tăng current_id
+    }
 };
 
-    
-//Dinh nghia ham random 
-//class RNG {
-//    public:
-//        RNG() : gen(std::random_device{}()) {}
-//    
-//        template <typename T>
-//        T choose(double prob, const T &val1, const T &val2) {
-//            std::bernoulli_distribution d(prob); // Phan phoi nhi thuc
-//            return d(gen) ? val1 : val2;
-//        }
-//
-//    private:
-//        std::mt19937 gen;
-//    };
-//extern RNG rng;
+Genome crossover(const Individual &dominant, const Individual &recessive, GenomeIndexer &m_genome_indexer);
+
+void mutate(Genome &genome, GenomeIndexer& genome_indexer);

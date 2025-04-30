@@ -61,30 +61,36 @@ bool SnakeEngine::generateFood() {
     }
 }
 
+// NOTE nếu input là hướng ngược lại với hướng hiện tại của đầu rắn
+// thì ép buộc đi theo hướng hiện tại để tránh AI bị chết tắc
 void SnakeEngine::update(const Direction &input) {
     Coordinates nextPos;
     switch (input)
     {
     case Direction::Up:
         if (headDirection == Direction::Down) {
+            update(Direction::Down);
             return;
         }
         nextPos = {snakeBody.front().col, snakeBody.front().row - 1};
         break;
     case Direction::Down:
         if (headDirection == Direction::Up) {
+            update(Direction::Up);
             return;
         }
         nextPos = {snakeBody.front().col, snakeBody.front().row + 1};
         break;
     case Direction::Left:
         if (headDirection == Direction::Right) {
+            update(Direction::Right);
             return;
         }
         nextPos = {snakeBody.front().col - 1, snakeBody.front().row};
         break;
     case Direction::Right:
         if (headDirection == Direction::Left) {
+            update(Direction::Left);
             return;
         }
         nextPos = {snakeBody.front().col + 1, snakeBody.front().row};
