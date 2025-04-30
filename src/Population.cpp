@@ -87,11 +87,14 @@ void update_fitness(Individual &individual) {
     snakeEngine.newGame();
     FeedForwardNetwork nn = create_from_geoneme(individual.genome);
 
-    for (int i = 0; i < max_steps && snakeEngine.state == GameState::Running; i++) {
+    while (snakeEngine.state == GameState::Running && 0 < max_steps) {
+        max_steps--;
+        snakeEngine.step++;
+
         Direction action = get_action(nn, snakeEngine);
         snakeEngine.update(action);
     }
-    individual.fitness = snakeEngine.score;
+    individual.fitness = snakeEngine.score - snakeEngine.step*0.1 ;
 }
 
 // Hàm debug

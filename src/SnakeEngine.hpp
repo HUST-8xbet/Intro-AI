@@ -46,6 +46,7 @@ public:
     std::deque<Coordinates> snakeBody;
     Direction headDirection;
     Coordinates food;
+    int step;
     int score;
     int cols, rows;
     GameState state;
