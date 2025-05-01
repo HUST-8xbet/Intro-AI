@@ -16,6 +16,9 @@
 class Population
 {
 public:
+
+    std::vector<Individual> individuals;
+
     Population() {
         for (int i = 0; i < cf::population_size; i++) {
             individuals.push_back(Individual{new_genome(), 0.0});
@@ -27,10 +30,18 @@ public:
         m_genome_indexer(m),
         best_fitness(b) {}
 
+    std::vector<Individual> reproduce();
+
+    void compute_fitness();
+
+    void update_best();
+
+    void sort_individual_by_fitness();
+
     void run(int num_generation);
 
 private:
-    std::vector<Individual> individuals;
+
     GenomeIndexer m_genome_indexer;
     double best_fitness;
 
@@ -44,20 +55,11 @@ private:
     }
 
     Genome new_genome();
-    
-    std::vector<Individual> reproduce();
-
-    void compute_fitness();
-
-    void update_best();
-
-    void sort_individual_by_fitness();
-
 };
 
+double calculate_fitness(SnakeEngine &snakeEngine);
 void update_fitness(Individual &Individual);
 void print_input(std::vector<double> input);
-void save_to_json(Population &population);
 
 std::vector<double> extract_inputs(const SnakeEngine &snake_engine);
 
