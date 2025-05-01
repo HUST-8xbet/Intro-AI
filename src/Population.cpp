@@ -65,23 +65,24 @@ void Population::run(int num_generation) {
 }
 
 void Population::compute_fitness() {
-    for (Individual individual : individuals) {
+    for (Individual &individual : individuals) {
         update_fitness(individual);
     }
 }
 
 void Population::update_best() {
-    best_fitness = 0;
-    for (Individual individual : individuals) {
+    best_fitness = individuals[0].fitness;
+    for (Individual &individual : individuals) {
         if (individual.fitness > best_fitness) {
             best_fitness = individual.fitness;
         }
     }
-    std::cout << "New best score: " << best_fitness << "\n";
+    std::cout << "Best score: " << best_fitness << "\n";
 }
 
 void update_fitness(Individual &individual) {
     int max_steps = cf::max_steps;
+    double new_fitness = 0.0;
 
     SnakeEngine snakeEngine(cf::NumRows, cf::NumCols);
     snakeEngine.newGame();
@@ -91,7 +92,11 @@ void update_fitness(Individual &individual) {
         Direction action = get_action(nn, snakeEngine);
         snakeEngine.update(action);
     }
-    individual.fitness = snakeEngine.score;
+    if (snakeEngine.state == GameState::GameOver) {
+        new_fitness -= 50;
+    }
+    new_fitness += snakeEngine.score;
+    individual.fitness = new_fitness;
 }
 
 // Hàm debug

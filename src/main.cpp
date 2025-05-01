@@ -98,8 +98,7 @@ static Genome new_genome() {
 int main()
 {
     // Test thử tuần tự hóa
-    Population population;
-    save_population_json(population, "data.json");
+    train();
 }
 
 

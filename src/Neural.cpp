@@ -41,6 +41,12 @@ bool mapContainsKey(std::unordered_map<int, double>& map, int key)
 
 // REVIEW cần kiểm tra lại
 //tinh trong so cua neuron o layer sau
+//Luu cac gia tri cua cac neuron o layer truoc vao map
+//input_ids: id cua cac neuron o layer truoc
+//output_ids: id cua cac neuron o layer sau
+//Khoi tao output_ids = 0
+//Tinh toan gia tri cho cac neuron o layer sau
+//Duyet qua cac neuron o layer sau va tinh toan gia tri cho tung neuron
 std::vector<double> FeedForwardNetwork:: activate(const std::vector<double> &inputs){
     assert(inputs.size() == input_ids.size());
     std::unordered_map<int, double>values;
@@ -70,8 +76,8 @@ std::vector<double> FeedForwardNetwork:: activate(const std::vector<double> &inp
     return outputs;
 }
 
-// FIXME đang có lỗi gom nhầm cả neuron hidden mà không có input nào vào lớp đầu tiên
-// hình như chưa kiểm tra xem link có được bật hay không
+// FIXME đang có lỗi gom nhầm cả neuron hidden mà không có input nào vào lớp đầu tiên // Da fix
+// hình như chưa kiểm tra xem link có được bật hay không // Da fix
 std::vector<std::vector<int>> feed_forward_layer(std::vector<int> inputs, 
     std::vector<int> outputs, std:: vector<Link_Gene> links)
 {
@@ -81,21 +87,23 @@ std::vector<std::vector<int>> feed_forward_layer(std::vector<int> inputs,
 
     //Khoi tao cac node co indegree = 0
     for (const auto &link : links) {
-        indegree[link.linkid.output_id]++;
-        forward_graph[link.linkid.input_id].push_back(link.linkid.output_id);
-        if(indegree.find(link.linkid.input_id) == indegree.end()) {
-            indegree[link.linkid.input_id] = 0; // Khoi tao indegree cho cac node ko co lien ket
+        if(!link.is_enable) continue; // Chi xet cac link duoc enable, tranh loi de tao ra graph khong hop le
+        
+        int u = link.linkid.input_id;
+        int v = link.linkid.output_id;
+        forward_graph[u].push_back(v); // u -> v
+        indegree[v]++; // Tang indegree cho v
+        if (indegree.find(u) == indegree.end()) {
+            indegree[u] = 0; // Khoi tao indegree cho u
         }
     }
 
     //Queue cac nut co indegree = 0
     std::queue<int> q;
     std::unordered_map<int, int> node_layer;    // luu layer cho cac node
-    for(const auto& [node_id, degree] : indegree) {
-        if (degree == 0) {
-            q.push(node_id);
-            node_layer[node_id] = 0; // Khoi tao layer cho cac node co indegree = 0
-        }
+    for (int input_id : inputs) {
+        q.push(input_id); // Cho cac node input vao queue
+        node_layer[input_id] = 0; // Gan layer cho cac node input
     }
 
     // Topological Sort để gán layer
@@ -128,15 +136,15 @@ std::vector<std::vector<int>> feed_forward_layer(std::vector<int> inputs,
 }
 
 // REVIEW cần kiểm tra lại
-// FIXME hình như chưa kiểm tra xem link có được bật hay không
+// FIXME hình như chưa kiểm tra xem link có được bật hay không // Da fix
 FeedForwardNetwork create_from_geoneme(Genome &genome) {
-//    print_genome(genome);
+    //    print_genome(genome);
 
     std::vector<int> inputs = genome.make_input_ids();
     std::vector<int> outputs = genome.make_output_ids();
     std::vector<std::vector<int>> layers = feed_forward_layer(inputs, outputs, genome.links);
 
-//    print_layers(layers);
+    //    print_layers(layers);
 
     std::vector<Neuron> neurons;
     // Bo qua input layers
@@ -144,11 +152,13 @@ FeedForwardNetwork create_from_geoneme(Genome &genome) {
         std::vector<int> layer = layers[i];
         for (int neuron_id : layer) {
             std::vector<NeuronInput> neuron_inputs;
-            for (auto link : genome.links) {
-                if (neuron_id == link.linkid.output_id) {
+            for (auto link : genome.links) { //Da them kiem tra link duoc enable hay khong
+                if (link.is_enable && neuron_id == link.linkid.output_id) { //Neu link duoc enable va neuron_id = link.linkid.output_id thi thuc hien
+
                     neuron_inputs.emplace_back(NeuronInput{link.linkid.input_id, link.weight});
                 }
             }
+
             auto neuron_gene = std::find(genome.neurons.begin(), genome.neurons.end(),
              // NOTE khoi tao neuron o day
                      NeuronGene{neuron_id, 0.0, relu{}});
