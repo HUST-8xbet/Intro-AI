@@ -76,8 +76,8 @@ std::vector<double> FeedForwardNetwork:: activate(const std::vector<double> &inp
     return outputs;
 }
 
-// FIXME đang có lỗi gom nhầm cả neuron hidden mà không có input nào vào lớp đầu tiên //Da chinh sua
-// hình như chưa kiểm tra xem link có được bật hay không
+// FIXME đang có lỗi gom nhầm cả neuron hidden mà không có input nào vào lớp đầu tiên // Da fix
+// hình như chưa kiểm tra xem link có được bật hay không // Da fix
 std::vector<std::vector<int>> feed_forward_layer(std::vector<int> inputs, 
     std::vector<int> outputs, std:: vector<Link_Gene> links)
 {
@@ -136,15 +136,15 @@ std::vector<std::vector<int>> feed_forward_layer(std::vector<int> inputs,
 }
 
 // REVIEW cần kiểm tra lại
-// FIXME hình như chưa kiểm tra xem link có được bật hay không //Da chinh sua
+// FIXME hình như chưa kiểm tra xem link có được bật hay không // Da fix
 FeedForwardNetwork create_from_geoneme(Genome &genome) {
-//    print_genome(genome);
+    //    print_genome(genome);
 
     std::vector<int> inputs = genome.make_input_ids();
     std::vector<int> outputs = genome.make_output_ids();
     std::vector<std::vector<int>> layers = feed_forward_layer(inputs, outputs, genome.links);
 
-//    print_layers(layers);
+    //    print_layers(layers);
 
     std::vector<Neuron> neurons;
     // Bo qua input layers
@@ -154,7 +154,7 @@ FeedForwardNetwork create_from_geoneme(Genome &genome) {
             std::vector<NeuronInput> neuron_inputs;
             for (auto link : genome.links) { //Da them kiem tra link duoc enable hay khong
                 if (link.is_enable && neuron_id == link.linkid.output_id) { //Neu link duoc enable va neuron_id = link.linkid.output_id thi thuc hien
-                    
+
                     neuron_inputs.emplace_back(NeuronInput{link.linkid.input_id, link.weight});
                 }
             }

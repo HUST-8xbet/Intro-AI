@@ -202,6 +202,7 @@ struct Genome{
     }
 
     // NOTE lien quan den chon ngau nhien
+    // Truoc khi dung phai kiem tra xem co neuron hidden nao khong
     int choose_random_hidden() const {
         std::vector<int> hidden_ids;
         for (const NeuronGene& neuron : neurons) {

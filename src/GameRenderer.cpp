@@ -68,13 +68,19 @@ void GameRenderer::draw() {
         drawGrid();
     }
     else if (gameData.state == GameState::GameOver) {
+        drawSnake();
+        drawFood();
+        drawGrid();
         sf::Text text(font);
-        text.setString("GameOver Press R to restart");
+        text.setString("GameOver");
         window.draw(text);
     }
     else if (gameData.state == GameState::Win) {
+        drawSnake();
+        drawFood();
+        drawGrid();
         sf::Text text(font);
-        text.setString("You win Press R to restart");
+        text.setString("You win");
         window.draw(text);
     }
 }

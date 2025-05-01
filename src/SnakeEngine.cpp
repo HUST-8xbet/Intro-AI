@@ -109,6 +109,7 @@ void SnakeEngine::update(const Direction &input) {
         snakeBody.pop_back();
         headDirection = input;
     }
+    step++;
 }
 
 bool SnakeEngine::hitBody(const Coordinates &pos) const {
@@ -125,6 +126,7 @@ bool SnakeEngine::hitWall(const Coordinates &pos) const {
 }
 
 void SnakeEngine::newGame() {
+    step = 0;
     score = 3;
     state = GameState::Running;
     createSnake();

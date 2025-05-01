@@ -114,7 +114,7 @@ void mutate_add_neuron(Genome &genome, GenomeIndexer &m_genome_indexer) {
 
 void mutate_remove_neuron(Genome &genome) {
     // Khong co neuron hidden nao de remove ca
-    if (genome.neurons.size() == cf::num_output) {
+    if (genome.neurons.size() <= cf::num_output) {
         return;
     }
 
@@ -133,29 +133,6 @@ void mutate_remove_neuron(Genome &genome) {
     genome.neurons.erase(neuron_to_remove);
 }
 
-//-------------------------------------------------------------------------------------------------------
-// Non structral mutate
-//-------------------------------------------------------------------------------------------------------
-
-// REVIEW get_double_in_range trả về số ngẫu nhiên theo phân phối đều
-// Nhưng xem một số code họ hay lấy phân phối chuẩn hơn, có lẽ cần điều chỉnh
-// Đột biến không làm thay đổi cấu trúc
-void mutate_weights_and_biases(Genome &genome) {
-    for (auto& link : genome.links) {
-        if(RNG::get_double() < cf::link_mutation_rate) {
-            double delta = RNG::get_double_in_range(-cf::delta_range, cf::delta_range);
-            link.weight += delta;
-        }
-    }
-
-    for (auto& neuron : genome.neurons) {
-        if(RNG::get_double() < cf::neuron_mutation_rate) {
-            double delta = RNG::get_double_in_range(-cf::delta_range, cf::delta_range);
-            neuron.bias += delta;
-        }
-    }
-}
-
 // Dot bien lam thay doi cau truc
 void mutate_structure(Genome &genome, GenomeIndexer &genome_indexer) {
     double r = RNG::get_double();
@@ -171,6 +148,40 @@ void mutate_structure(Genome &genome, GenomeIndexer &genome_indexer) {
     }
     else {
         mutate_remove_neuron(genome);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------------
+// Non structral mutate
+//-------------------------------------------------------------------------------------------------------
+
+// Ham kep gia tri delta vao giua khoang [min, max]
+void clamp(double &delta) {
+    if (delta > cf::delta_max_value) {
+        delta = cf::delta_max_value;
+    }
+    else if (delta < cf::delta_min_value) {
+        delta = cf::delta_min_value;
+    }
+}
+
+// REVIEW moi sua thanh phan phoi chuan
+// Đột biến không làm thay đổi cấu trúc
+void mutate_weights_and_biases(Genome &genome) {
+    for (auto& link : genome.links) {
+        if(RNG::get_double() < cf::link_mutation_rate) {
+            double delta = RNG::get_double_normal_dist();
+            clamp(delta);
+            link.weight += delta;
+        }
+    }
+
+    for (auto& neuron : genome.neurons) {
+        if(RNG::get_double() < cf::neuron_mutation_rate) {
+            double delta = RNG::get_double_normal_dist();
+            clamp(delta);
+            neuron.bias += delta;
+        }
     }
 }
 
