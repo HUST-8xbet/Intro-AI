@@ -2,12 +2,14 @@
 
 #include <random>
 #include <iterator>
+#include "config.hpp"
 
 // REVIEW tam thoi de vay
 namespace RNG {
     inline std::random_device rd;
     inline std::mt19937 gen(rd());
     inline std::uniform_real_distribution<double> real_dist(0.0f, 1.0f);
+    inline std::normal_distribution<double> normal_dist(cf::normal_dist_mean, cf::normal_dist_stddev);
 
     inline int get_int() {
         return gen();
@@ -22,8 +24,12 @@ namespace RNG {
         return real_dist(gen);
     }
 
-    inline float get_double_in_range(double min, double max) {
+    inline double get_double_in_range(double min, double max) {
         return min + real_dist(gen)*(max-min);
+    }
+
+    inline double get_double_normal_dist() {
+        return normal_dist(gen);
     }
 
     template <typename T>
