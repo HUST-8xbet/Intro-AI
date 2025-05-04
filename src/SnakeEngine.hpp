@@ -44,6 +44,7 @@ public:
     Direction headDirection;
     Coordinates food;
     int step;
+    int step_since_last_food;
     int score;
     int cols, rows;
     GameState state;

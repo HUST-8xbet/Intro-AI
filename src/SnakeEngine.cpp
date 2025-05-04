@@ -109,11 +109,13 @@ void SnakeEngine::update(const Direction &input) {
             state = GameState::Win;
         }
         score++;
+        step_since_last_food = 0;
     }
     else {
         snakeBody.push_front(nextPos);
         snakeBody.pop_back();
         headDirection = input;
+        step_since_last_food++;
     }
     step++;
 }
@@ -133,6 +135,7 @@ bool SnakeEngine::hitWall(const Coordinates &pos) const {
 
 void SnakeEngine::newGame() {
     step = 0;
+    step_since_last_food = 0;
     score = 3;
     state = GameState::Running;
     createSnake();

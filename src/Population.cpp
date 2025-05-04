@@ -46,8 +46,8 @@ std::vector<Individual> Population::reproduce() {
     return new_generation;
 }
 
-// NOTE hàm này sắp xếp các cá thể theo thứ tự tăng dần theo fitness
-// REVIEW test thử xem có đúng là tăng dần ko?
+// NOTE hàm này sắp xếp các cá thể theo thứ tự giảm dần theo fitness
+// REVIEW test thử xem có đúng là giảm dần ko?
 void Population::sort_individual_by_fitness() {
     std::sort(individuals.begin(), individuals.end(),
     [] (Individual a, Individual b) {
@@ -58,9 +58,10 @@ void Population::sort_individual_by_fitness() {
 void Population::run(int num_generation) {
     for (int i = 0; i < num_generation; i++) {
         compute_fitness();
-        std::cout << "Generation " << i << ":\n";
+        std::cout << "Generation " << current_generation << ":\n";
         update_best();
         individuals = reproduce();
+        current_generation++;
     }
 }
 
@@ -71,33 +72,34 @@ void Population::compute_fitness() {
 }
 
 void Population::update_best() {
+    double sum = 0.0;
     best_fitness = individuals[0].fitness;
     for (Individual &individual : individuals) {
         if (individual.fitness > best_fitness) {
             best_fitness = individual.fitness;
         }
+        sum += individual.fitness;
     }
     std::cout << "Best score: " << best_fitness << "\n";
+    std::cout << "Average score: " << sum/(double)cf::population_size << "\n";
 }
 
 double calculate_fitness(SnakeEngine &snakeEngine) {
     double fitness = 0.0;
     if (snakeEngine.state == GameState::GameOver) {
-        fitness -= 50;
+        fitness -= 5.0;
     }
     fitness += snakeEngine.score;
     return fitness;
 }
 
 void update_fitness(Individual &individual) {
-    int max_steps = cf::max_steps;
-
-
     SnakeEngine snakeEngine(cf::NumRows, cf::NumCols);
     snakeEngine.newGame();
     FeedForwardNetwork nn = create_from_geoneme(individual.genome);
 
-    for (int i = 0; i < max_steps && snakeEngine.state == GameState::Running; i++) {
+    while(snakeEngine.step_since_last_food < cf::max_steps_since_last_food &&
+             snakeEngine.state == GameState::Running) {
         Direction action = get_action(nn, snakeEngine);
         snakeEngine.update(action);
     }
@@ -169,24 +171,21 @@ std::vector<double> extract_inputs(const SnakeEngine &state) {
     // Lý do chuẩn hóa: Khoảng cách càng gần, giá trị 1.0 / dist càng lớn (rắn càng gần, mạng nơ-ron sẽ thấy nguy hiểm hơn).
     Coordinates head = state.snakeBody.front();
 
-//    auto calc_body_dis = [&] (int dx, int dy) {
-//        int cx = x + dx, cy = y + dy;    // / Vị trí hiện tại (cx, cy) được tính từ đầu rắn và hướng di chuyển (dx, dy) cy = y + dy;
-//        int dist = 1.0;
-//        while(cx >= 0 && cx < state.board_width && cy >= 0 && cy < state.board_height) {
-//            if(find(state.snake_body.begin(), state.snake_body.end(), make_pair(cx, cy)) != state.snake_body.end()) {
-//                return 1.0 / dist;
-//            }
-//            dist++;
-//            cx += dx;
-//            cy += dy;
-//        }
-//        return 0.0;
-//}
-//    
-//    inputs.push_back(calc_body_dis(-1, 0));  // LEFT
-//    inputs.push_back(calc_body_dis(1, 0));   // RIGHT
-//    inputs.push_back(calc_body_dis(0, -1));  // UP
-//    inputs.push_back(calc_body_dis(0, 1));   // DOWN
+    auto calc_body_dis = [&] (int dx, int dy) {
+        Coordinates next_pos = {head.col + dx, head.row + dy};    // / Vị trí hiện tại (cx, cy) được tính từ đầu rắn và hướng di chuyển (dx, dy) cy = y + dy;
+        double dist = 1.0;
+        while(!state.hitBody(next_pos) && !state.hitWall(next_pos)) {
+            dist++;
+            next_pos.col += dx;
+            next_pos.row += dy;
+        }
+        return 1.0 / dist;
+    };
+    
+    inputs.push_back(calc_body_dis(0, -1));  // UP
+    inputs.push_back(calc_body_dis(0, 1));   // DOWN
+    inputs.push_back(calc_body_dis(-1, 0));  // LEFT
+    inputs.push_back(calc_body_dis(1, 0));   // RIGHT
 
     // Chuẩn hoá input về 0, 1 
     // Ví dụ nếu đầu rắn ở gần mép trái thì input nhỏ 

@@ -34,9 +34,10 @@ namespace cf {
 
     // Population
     inline unsigned int const population_size = 500;
-    inline unsigned int const num_input = 12;
+    inline unsigned int const num_input = 16;
     inline unsigned int const num_output = 4;
-    inline unsigned int const max_steps = 100;
+    inline unsigned int const max_steps = 100; // Ko su dung
+    inline unsigned int const max_steps_since_last_food = 75;
     inline double const survival_threshold = 0.2;
 
     // Non structral mutation

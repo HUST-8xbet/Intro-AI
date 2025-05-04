@@ -18,12 +18,14 @@ class Population
 public:
 
     std::vector<Individual> individuals;
+    int current_generation;
 
     Population() {
         for (int i = 0; i < cf::population_size; i++) {
             individuals.push_back(Individual{new_genome(), 0.0});
             best_fitness = 0.0;
         }
+        current_generation = 0;
     }
     Population(std::vector<Individual> i, GenomeIndexer m, double b) : 
         individuals(i),
@@ -50,6 +52,7 @@ private:
     void serialize(Archive & archive)
     {
         archive(CEREAL_NVP(individuals),
+                CEREAL_NVP(current_generation),
                 CEREAL_NVP(m_genome_indexer),
                 CEREAL_NVP(best_fitness));
     }
