@@ -34,13 +34,13 @@ public:
 
     std::vector<Individual> reproduce();
 
-    void compute_fitness();
+    void compute_fitness(int broad_cols, int broad_rows);
 
     void update_best();
 
     void sort_individual_by_fitness();
 
-    void run(int num_generation);
+    void run(int num_generation, int broad_cols, int broad_rows);
 
 private:
 
@@ -61,7 +61,7 @@ private:
 };
 
 double calculate_fitness(SnakeEngine &snakeEngine);
-void update_fitness(Individual &Individual);
+void update_fitness(Individual &Individual, int broad_cols, int broad_rows);
 void print_input(std::vector<double> input);
 
 std::vector<double> extract_inputs(const SnakeEngine &snake_engine);

@@ -46,8 +46,8 @@ void SnakeEngine::createSnake() {
 // NOTE lien quan den chon ngau nhien
 bool SnakeEngine::generateFood() {
     std::list<Coordinates> emptySpace;
-    for (int i = 0; i < cf::NumCols; i++) {
-        for (int j = 0; j < cf::NumRows; j++) {
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
             if (!hitBody({i, j})) {
                 emptySpace.push_front({i, j});
             }
