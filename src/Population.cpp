@@ -55,9 +55,9 @@ void Population::sort_individual_by_fitness() {
     });
 }
 
-void Population::run(int num_generation, int broad_rows, int broad_cols) {
+void Population::run(int num_generation, int broad_rows, int broad_cols, int max_steps_since_last_food) {
     for (int i = 0; i < num_generation; i++) {
-        compute_fitness(broad_cols, broad_rows);
+        compute_fitness(broad_cols, broad_rows, max_steps_since_last_food);
         std::cout << "Generation " << current_generation << ":\n";
         update_best();
         individuals = reproduce();
@@ -65,9 +65,9 @@ void Population::run(int num_generation, int broad_rows, int broad_cols) {
     }
 }
 
-void Population::compute_fitness(int broad_rows, int broad_cols) {
+void Population::compute_fitness(int broad_rows, int broad_cols, int max_steps_since_last_food) {
     for (Individual &individual : individuals) {
-        update_fitness(individual, broad_cols, broad_rows);
+        update_fitness(individual, broad_cols, broad_rows, max_steps_since_last_food);
     }
 }
 
@@ -93,12 +93,12 @@ double calculate_fitness(SnakeEngine &snakeEngine) {
     return fitness;
 }
 
-void update_fitness(Individual &individual, int broad_rows, int broad_cols) {
+void update_fitness(Individual &individual, int broad_rows, int broad_cols, int max_steps_since_last_food) {
     SnakeEngine snakeEngine(broad_cols, broad_rows);
     snakeEngine.newGame();
     FeedForwardNetwork nn = create_from_geoneme(individual.genome);
 
-    while(snakeEngine.step_since_last_food < cf::max_steps_since_last_food &&
+    while(snakeEngine.step_since_last_food < max_steps_since_last_food &&
              snakeEngine.state == GameState::Running) {
         Direction action = get_action(nn, snakeEngine);
         snakeEngine.update(action);

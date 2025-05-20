@@ -11,12 +11,18 @@ sf::Color vec3f_to_color(float rgb[3]) {
         (uint8_t) (rgb[2]*255)};
 }
 
-void GUI::training_thread(int num_gen, std::string load_from, std::string save_as, int broad_cols, int broad_rows) {
+void GUI::training_thread(int num_gen, std::string load_from, std::string save_as,
+        int broad_cols, int broad_rows, int max_step_since_last_food) {
     Population population;
     if (!load_population_json(population, load_from)) {
         std::cout << "Cannot open file, start training new population" << std::endl;
     } else std::cout << "Loaded population from: " << load_from << std::endl;
-    population.run(num_gen, broad_cols, broad_rows);
+
+    std::cout << num_gen << "\n";
+    std::cout << broad_cols << "\n";
+    std::cout << broad_rows << "\n";
+    std::cout << max_step_since_last_food << "\n";
+    population.run(num_gen, broad_cols, broad_rows, max_step_since_last_food);
     save_population_json(population, save_as);
 
     std::cout << "Training completed" << std::endl;
@@ -44,6 +50,7 @@ void GUI::show_control_window() {
             ImGui::SliderInt("Number generation", &control_window_data.num_generation, 0, 2000, "%d", flags);
             ImGui::SliderInt("Train Board Columns", &control_window_data.train_broad_cols, 5, 20, "%d", flags);
             ImGui::SliderInt("Train Board Rows", &control_window_data.train_broad_rows, 5, 20, "%d", flags);
+            ImGui::SliderInt("Max Steps Since Last Food", &control_window_data.max_step_since_last_food, 0, 500, "%d", flags);
             if (ImGui::Button("Start training")) {
                 if (strlen(control_window_data.save_filename) == 0) {
                     std::cout << "Save Filename Is Null";
@@ -52,8 +59,9 @@ void GUI::show_control_window() {
                                             control_window_data.num_generation,
                                             control_window_data.training_filename,
                                             control_window_data.save_filename,
-                                            control_window_data.board_cols,
-                                            control_window_data.board_rows);}
+                                            control_window_data.train_broad_cols,
+                                            control_window_data.train_broad_rows,
+                                            control_window_data.max_step_since_last_food);}
             }
             ImGui::EndTabItem();
         }
@@ -100,16 +108,16 @@ void GUI::show_board_control() {
         return;
     }
 
-    ImGui::SeparatorText("Render Control");
-    ImGuiSliderFlags flags = ImGuiSliderFlags_ClampOnInput;
-    ImGui::SliderFloat("Board Width", &grd.board_width, 0.0f, 800.0f, "%.3f", flags);
-    ImGui::SliderFloat("Board Height", &grd.board_height, 0.0f, 800.0f, "%.3f", flags);
-
-    ImGui::ColorEdit3("Snake Body Color", grd.snake_body_color);
-    ImGui::ColorEdit3("Snake Head Color", grd.snake_head_color);
-    ImGui::ColorEdit3("Food Color", grd.food_color);
-    ImGui::ColorEdit3("Grid Color", grd.grid_color);
-    ImGui::ColorEdit3("Background Color", grd.background_color);
+    //ImGui::SeparatorText("Render Control");
+    //ImGuiSliderFlags flags = ImGuiSliderFlags_ClampOnInput;
+    //ImGui::SliderFloat("Board Width", &grd.board_width, 0.0f, 800.0f, "%.3f", flags);
+    //ImGui::SliderFloat("Board Height", &grd.board_height, 0.0f, 800.0f, "%.3f", flags);
+//
+    //ImGui::ColorEdit3("Snake Body Color", grd.snake_body_color);
+    //ImGui::ColorEdit3("Snake Head Color", grd.snake_head_color);
+    //ImGui::ColorEdit3("Food Color", grd.food_color);
+    //ImGui::ColorEdit3("Grid Color", grd.grid_color);
+    //ImGui::ColorEdit3("Background Color", grd.background_color);
 
     if (control_window_data.ai_play) {
         ImGui::SeparatorText("AI Control");
@@ -125,6 +133,7 @@ void GUI::show_board_control() {
                 snake_game.newGame();
                 current_individual--;
                 nn = create_from_geoneme(population.individuals[current_individual].genome);
+                nr.init(population.individuals[current_individual].genome);
             }
         }
         ImGui::SameLine(0.0f, spacing);
@@ -133,6 +142,7 @@ void GUI::show_board_control() {
                 snake_game.newGame();
                 current_individual++;
                 nn = create_from_geoneme(population.individuals[current_individual].genome);
+                nr.init(population.individuals[current_individual].genome);
             }
         }
         ImGui::PopItemFlag();
@@ -202,7 +212,6 @@ void GUI::run() {
         // ImGui Stuff
         ImGui::SFML::Update(window, deltaClock.restart());
 
-        ImGui::ShowDemoWindow();
         if (state == GuiState::Idle) {
             show_control_window();
         }
@@ -218,15 +227,18 @@ void GUI::run() {
         }
 
         // Update
-        if (state == GuiState::Playing && control_window_data.ai_play) {
+        if (state == GuiState::Playing && control_window_data.ai_play && snake_game.state == GameState::Running) {
             Direction action = get_action(nn, snake_game);
             snake_game.update(action);
         }
 
         // ve ra man hinh
-        window.clear(vec3f_to_color(grd.background_color));
+        window.clear(background_color);
         if (state == GuiState::Playing) {
-            draw_snake_game();
+            br.draw(window, snake_game);
+            if (control_window_data.ai_play) {
+                nr.draw(window);
+            }
         }
         ImGui::SFML::Render(window);
         window.display();
@@ -241,6 +253,7 @@ void GUI::start_ai_play() {
 
     current_individual = 0;
     nn = create_from_geoneme(population.individuals[current_individual].genome);
+    nr.init(population.individuals[current_individual].genome);
 
     state = GuiState::Playing;
 }
@@ -256,86 +269,3 @@ void GUI::stop_play() {
     state = GuiState::Idle;
 }
 
-void GUI::draw_grid() {
-    float row_height = grd.board_height / snake_game.rows;
-    float col_width = grd.board_width / snake_game.cols;
-
-    sf::VertexArray grid(sf::PrimitiveType::Lines, (snake_game.rows + 1 + snake_game.cols + 1) * 2);
-
-    // Them cac duong ke ngang
-    for (int i = 0; i <= snake_game.rows * 2; i += 2) {
-        grid[i].position = sf::Vector2f(10.0f, 10.f + row_height*(i/2));
-        grid[i + 1].position = sf::Vector2f(10.0f + grd.board_width, 10.f + row_height*(i/2));
-
-        grid[i].color = vec3f_to_color(grd.grid_color);
-        grid[i + 1].color = vec3f_to_color(grd.grid_color);
-    }
-
-    // Them cac duong ke doc
-    // (rows+1)*2 la so dinh cua cac duong ke ngang
-    for (int i = 0; i <= snake_game.cols * 2; i += 2) {
-        grid[i + (snake_game.rows + 1)*2].position = sf::Vector2f(10.0f + col_width*i/2, 10.f);
-        grid[i + (snake_game.rows + 1)*2 + 1].position = sf::Vector2f(10.0f + col_width*i/2, 10.f + grd.board_height);
-
-        grid[i + (snake_game.rows + 1)*2].color = vec3f_to_color(grd.grid_color);
-        grid[i + (snake_game.rows + 1)*2 + 1].color = vec3f_to_color(grd.grid_color);
-    }
-
-    window.draw(grid);
-}
-
-void GUI::draw_snake() {
-    float row_height = grd.board_height / snake_game.rows;
-    float col_width = grd.board_width / snake_game.cols;
-
-    // Ve than ran
-    for (Coordinates bodyPart : snake_game.snakeBody) {
-        sf::RectangleShape bodyRec({col_width, row_height});
-        bodyRec.setPosition({10.f + bodyPart.col * col_width, 10.f + bodyPart.row * row_height});
-        bodyRec.setFillColor(vec3f_to_color(grd.snake_body_color));
-        window.draw(bodyRec);
-    }
-
-    // Ve lai dau ran mau khac
-    sf::RectangleShape headRec({col_width, row_height});
-    headRec.setPosition({10.f + snake_game.snakeBody.front().col * col_width,
-                         10.f + snake_game.snakeBody.front().row * row_height});
-    headRec.setFillColor(vec3f_to_color(grd.snake_head_color));
-    window.draw(headRec);
-}
-
-void GUI::draw_food() {
-    float row_height = grd.board_height / snake_game.rows;
-    float col_width = grd.board_width / snake_game.cols;
-
-    sf::RectangleShape foodRec({col_width, row_height});
-    foodRec.setPosition({10.f + snake_game.food.col * col_width, 10.f + snake_game.food.row * row_height});
-    foodRec.setFillColor(vec3f_to_color(grd.food_color));
-    window.draw(foodRec);
-}
-
-void GUI::draw_snake_game() {
-    if (snake_game.state == GameState::Running) {
-        draw_snake();
-        draw_food();
-        draw_grid();
-    }
-    else if (snake_game.state == GameState::GameOver) {
-        draw_snake();
-        draw_food();
-        draw_grid();
-        sf::Text text(font);
-        text.setPosition({10.0f, 20.0f + grd.board_height});
-        text.setString("GameOver");
-        window.draw(text);
-    }
-    else if (snake_game.state == GameState::Win) {
-        draw_snake();
-        draw_food();
-        draw_grid();
-        sf::Text text(font);
-        text.setPosition({10.0f, 20.0f + grd.board_height});
-        text.setString("You win");
-        window.draw(text);
-    }
-}
