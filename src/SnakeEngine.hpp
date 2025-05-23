@@ -1,7 +1,7 @@
 #pragma once
 
 #include <deque>
-#include <List>
+#include <list>
 
 // NOTE class SnakeEngine bao gồm đầy đủ các thông tin về trạng thái game con răns
 // snakeBody là một hàng đợi, mỗi phần tử tương ứng với tọa độ một điểm trong thân rắn
