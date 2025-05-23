@@ -39,6 +39,7 @@ Là các sinh viên khoa Khoa học máy tính - K68 Đại học Bách khoa Hà
 - Vũ Bình Minh
 - Nguyễn Trung Hiếu
 - Đào Kiều Thịnh Quang
+
 # Các file trong repo
 `Activation.hpp` : Chứa hàm kích hoạt trong mạng <br>
 `BoardRenderer.hpp`: Vẽ mạng Neural <br>
