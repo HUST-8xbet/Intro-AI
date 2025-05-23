@@ -21,17 +21,19 @@ Khi vào giao diện có thể lựa chọn Training hoặc Chơi, đối với 
 - Thay đổi kích thước map
 - Thay đổi số bước tối đa kể từ khi ăn thức ăn cuối
 ![Image](https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f)<br>
+
 Đối với chế độ Chơi, người sử dụng có thể:
 - Lựa chọn chế độ người hoặc AI chơi
 - Thay đổi kích thước map bất kỳ
 ![Image](https://github.com/user-attachments/assets/e52d74de-c422-41dc-b4ba-3ffd8d0afa7a)<br>
+
 Khi vào trò chơi, ta có thể lựa chọn:<br>
 - Current Individual: Lựa chọn từng cá thể còn lại sau khi thực hiện train
 - New Game: Thực hiện trò chơi mới
 - Stop Game: Dừng lại trò chơi
 ![Image](https://github.com/user-attachments/assets/1229e104-0c4a-46f8-8afb-bb9b29143154)<br>
 # Thành viên
-Là các sinh viên Khoa học máy tính - K68 Đại học Bách khoa Hà Nội, dưới sự hướng dẫn của PGS.TS Lê Thanh Hương:
+Là các sinh viên khoa Khoa học máy tính - K68 Đại học Bách khoa Hà Nội, dưới sự hướng dẫn của PGS.TS Lê Thanh Hương:
 - Trần Phương Nam 
 - Nguyễn Ngọc Lê Minh
 - Vũ Bình Minh
