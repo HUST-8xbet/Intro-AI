@@ -8,16 +8,22 @@ Trò chơi được ra mắt đầu tiên bởi hãng Gremlin (Mỹ) có tên Bl
 Thông tin chi tiết về trò chơi: [Trò chơi con răn](https://en.wikipedia.org/wiki/Snake_(video_game_genre))<br>
 Trong trò chơi này, con rắn sẽ được chơi với các map với kích cỡ bất kỳ
 
-![image](https://www.multiplicationgames.com/images/blogs/multiplication-snake-screenshot.png)
+<img src="https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f" width="400"/>
+
 
 # Cách sử dụng
 Trước khi sử dụng tải thư viện `SFML 3.0.0` và `CMake 3.31.7` phù hợp với máy của bạn <br>
 Tải dự án về và chạy trên CMake <br>
 Trong giao diện CMake, vào mục Configure và chọn thư viện phù hợp (ưu tiên Visual Studio Build Tools 2022 Release) <br>
 Vào mục Launch, ấn chọn main <br>
-Khi vào giao diện có thể lựa chọn Training hoặc Chơi, đối với Training người sử dụng có thể thay đổi số lần train, kích thước map hoặc số bước tối đa kể từ khi ăn thức ăn cuối:
-![Image](https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f)
-Đối với chế độ Chơi, người sử dụng có thể thay đổi kích cỡ của map, hoặc là có thể lựa chọn chế đồ người chơi hoặc AI chơi
+Khi vào giao diện có thể lựa chọn Training hoặc Chơi, đối với Training người sử dụng có thể:
+- Thay đổi số lần train
+- Thay đổi kích thước map
+- Thay đổi số bước tối đa kể từ khi ăn thức ăn cuối
+![Image](https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f) 
+Đối với chế độ Chơi, người sử dụng có thể:
+- Lựa chọn chế độ người hoặc AI chơi
+- Thay đổi kích thước map bất kỳ
 ![Image](https://github.com/user-attachments/assets/e52d74de-c422-41dc-b4ba-3ffd8d0afa7a)
 Khi vào trò chơi, ta có thể lựa chọn:<br>
 - Current Individual: Lựa chọn từng cá thể còn lại sau khi thực hiện train
