@@ -27,7 +27,7 @@ Khi vào giao diện có thể lựa chọn Training hoặc Chơi, đối với 
 - Thay đổi kích thước map bất kỳ
 ![Image](https://github.com/user-attachments/assets/e52d74de-c422-41dc-b4ba-3ffd8d0afa7a)<br>
 
-Khi vào trò chơi, ta có thể lựa chọn:<br>
+Khi vào trò chơi, ta có thể lựa chọn:
 - Current Individual: Lựa chọn từng cá thể còn lại sau khi thực hiện train
 - New Game: Thực hiện trò chơi mới
 - Stop Game: Dừng lại trò chơi
