@@ -30,20 +30,20 @@ Là các sinh viên Khoa học máy tính - K68 Đại học Bách khoa Hà Nộ
 - Nguyễn Trung Hiếu
 - Đào Kiều Thịnh Quang
 # Các file trong repo
-`Activation.hpp` : Chứa hàm kích hoạt trong mạng
-`BoardRenderer.hpp`: Vẽ mạng Neural
-`GUI.cpp`: Chứa các hàm thực hiện trò chơi
-`GUI.hpp`: File header chứa class GUI
-`GeneticAlgorithm.cpp`: Thuật toán di truyền
-`GeneticAlgorithm.hpp`: File header hỗ trợ thuật toán di truyền
-`NetworkRenderer.hpp`: Vẽ giao diện và thực hiện xếp layer cho mạng
-`Neural.cpp`: Xây dựng các phương thức liên kết của mạng
-`Neural.hpp`: Chứa các định nghĩa cơ bản của mạng Neural
-`Population.cpp`: Xây dựng quần thể
-`Population.hpp`: Header xây dựng cơ bản cho quần thể
-`RNG.hpp`: Chứa các phân phối xác suất cho mạng
-`Serializer.hpp`: Nơi để ghi các hàm lưu file
-`SnakeEngine.cpp`: Cách con rắn di chuyển
-`SnakeEngine.hpp`: Xây dựng cơ bản con rắn
-`config.hpp`: Chứa thông số di truyền
-`main.cpp`: Hàm chính
+`Activation.hpp` : Chứa hàm kích hoạt trong mạng <br>
+`BoardRenderer.hpp`: Vẽ mạng Neural <br>
+`GUI.cpp`: Chứa các hàm thực hiện trò chơi <br>
+`GUI.hpp`: File header chứa class GUI <br>
+`GeneticAlgorithm.cpp`: Thuật toán di truyền <br>
+`GeneticAlgorithm.hpp`: File header hỗ trợ thuật toán di truyền <br>
+`NetworkRenderer.hpp`: Vẽ giao diện và thực hiện xếp layer cho mạng <br>
+`Neural.cpp`: Xây dựng các phương thức liên kết của mạng <br>
+`Neural.hpp`: Chứa các định nghĩa cơ bản của mạng Neural <br>
+`Population.cpp`: Xây dựng quần thể <br>
+`Population.hpp`: Header xây dựng cơ bản cho quần thể <br>
+`RNG.hpp`: Chứa các phân phối xác suất cho mạng<br>
+`Serializer.hpp`: Nơi để ghi các hàm lưu file<br>
+`SnakeEngine.cpp`: Cách con rắn di chuyển<br>
+`SnakeEngine.hpp`: Xây dựng cơ bản con rắn<br>
+`config.hpp`: Chứa thông số di truyền<br>
+`main.cpp`: Hàm chính<br>
