@@ -8,7 +8,7 @@ Trò chơi được ra mắt đầu tiên bởi hãng Gremlin (Mỹ) có tên Bl
 Thông tin chi tiết về trò chơi: [Trò chơi con răn](https://en.wikipedia.org/wiki/Snake_(video_game_genre))<br>
 Trong trò chơi này, con rắn sẽ được chơi với các map với kích cỡ bất kỳ
 
-<img src="https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f" width="400"/>
+<img src="https://camo.githubusercontent.com/bc46667eed02c3f315e62942957f8c87c687cab586d4e1ba37ebf7b1069a3023/68747470733a2f2f7777772e6d756c7469706c69636174696f6e67616d65732e636f6d2f696d616765732f626c6f67732f6d756c7469706c69636174696f6e2d736e616b652d73637265656e73686f742e706e67" width="800"/>
 
 
 # Cách sử dụng
