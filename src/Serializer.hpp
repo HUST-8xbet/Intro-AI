@@ -1,3 +1,4 @@
+#pragma once
 #include <fstream>
 #include <string>
 
@@ -14,10 +15,12 @@ void save_population_json(const Population &population, const std::string& filen
     archive(CEREAL_NVP(population));
 }
 
-void load_population_json(Population &population, const std::string& filename) {
+bool load_population_json(Population &population, const std::string& filename) {
     std::ifstream is(filename);
+    if (!is) return false;
     cereal::JSONInputArchive archive(is);
     archive(population);
+    return true;
 }
 
 void save_population_binary(const Population &population, const std::string& filename) {
@@ -26,10 +29,12 @@ void save_population_binary(const Population &population, const std::string& fil
     archive(population);
 }
 
-void load_population_binary(Population &population, const std::string& filename) {
+bool load_population_binary(Population &population, const std::string& filename) {
     std::ifstream is(filename, std::ios::binary);
+    if (!is) return false;
     cereal::BinaryInputArchive archive(is);
     archive(population);
+    return true;
 }
 
 void saveIndividualJson(const Individual& individual, const std::string& filename) {
@@ -38,10 +43,12 @@ void saveIndividualJson(const Individual& individual, const std::string& filenam
     archive(CEREAL_NVP(individual));
 }
 
-void loadIndividualJson(Individual& ind, const std::string& filename) {
+bool loadIndividualJson(Individual& ind, const std::string& filename) {
     std::ifstream is(filename);
+    if (!is) return false;
     cereal::JSONInputArchive archive(is);
     archive(ind);
+    return true;
 }
 
 void saveIndividualBinary(const Individual& ind, const std::string& filename) {
@@ -50,8 +57,10 @@ void saveIndividualBinary(const Individual& ind, const std::string& filename) {
     archive(ind);
 }
 
-void loadIndividualBinary(Individual& ind, const std::string& filename) {
+bool loadIndividualBinary(Individual& ind, const std::string& filename) {
     std::ifstream is(filename, std::ios::binary);
+    if (!is) return false;
     cereal::BinaryInputArchive archive(is);
     archive(ind);
+    return true;
 }

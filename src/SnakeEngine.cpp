@@ -46,8 +46,8 @@ void SnakeEngine::createSnake() {
 // NOTE lien quan den chon ngau nhien
 bool SnakeEngine::generateFood() {
     std::list<Coordinates> emptySpace;
-    for (int i = 0; i < cf::NumCols; i++) {
-        for (int j = 0; j < cf::NumRows; j++) {
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
             if (!hitBody({i, j})) {
                 emptySpace.push_front({i, j});
             }
@@ -103,11 +103,13 @@ void SnakeEngine::update(const Direction &input) {
             state = GameState::Win;
         }
         score++;
+        step_since_last_food = 0;
     }
     else {
         snakeBody.push_front(nextPos);
         snakeBody.pop_back();
         headDirection = input;
+        step_since_last_food++;
     }
     step++;
 }
@@ -127,6 +129,7 @@ bool SnakeEngine::hitWall(const Coordinates &pos) const {
 
 void SnakeEngine::newGame() {
     step = 0;
+    step_since_last_food = 0;
     score = 3;
     state = GameState::Running;
     createSnake();

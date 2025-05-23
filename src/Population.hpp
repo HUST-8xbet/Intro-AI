@@ -18,12 +18,14 @@ class Population
 public:
 
     std::vector<Individual> individuals;
+    int current_generation;
 
     Population() {
         for (int i = 0; i < cf::population_size; i++) {
             individuals.push_back(Individual{new_genome(), 0.0});
             best_fitness = 0.0;
         }
+        current_generation = 0;
     }
     Population(std::vector<Individual> i, GenomeIndexer m, double b) : 
         individuals(i),
@@ -32,13 +34,13 @@ public:
 
     std::vector<Individual> reproduce();
 
-    void compute_fitness();
+    void compute_fitness(int broad_cols, int broad_rows, int max_steps_since_last_food);
 
     void update_best();
 
     void sort_individual_by_fitness();
 
-    void run(int num_generation);
+    void run(int num_generation, int broad_cols, int broad_rows, int max_steps_since_last_food);
 
 private:
 
@@ -50,6 +52,7 @@ private:
     void serialize(Archive & archive)
     {
         archive(CEREAL_NVP(individuals),
+                CEREAL_NVP(current_generation),
                 CEREAL_NVP(m_genome_indexer),
                 CEREAL_NVP(best_fitness));
     }
@@ -58,7 +61,7 @@ private:
 };
 
 double calculate_fitness(SnakeEngine &snakeEngine);
-void update_fitness(Individual &Individual);
+void update_fitness(Individual &Individual, int broad_cols, int broad_rows, int max_steps_since_last_food);
 void print_input(std::vector<double> input);
 
 std::vector<double> extract_inputs(const SnakeEngine &snake_engine);
