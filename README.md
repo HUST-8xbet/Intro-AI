@@ -20,12 +20,12 @@ Khi vào giao diện có thể lựa chọn Training hoặc Chơi, đối với 
 - Thay đổi số lần train
 - Thay đổi kích thước map
 - Thay đổi số bước tối đa kể từ khi ăn thức ăn cuối
-![Image](https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f)<br>
+<img src="https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f" width="1000"/>
 
 Đối với chế độ Chơi, người sử dụng có thể:
 - Lựa chọn chế độ người hoặc AI chơi
 - Thay đổi kích thước map bất kỳ
-![Image](https://github.com/user-attachments/assets/e52d74de-c422-41dc-b4ba-3ffd8d0afa7a)<br>
+![Image](https://github.com/user-attachments/assets/e52d74de-c422-41dc-b4ba-3ffd8d0afa7a)<br> 
 
 Khi vào trò chơi, ta có thể lựa chọn:
 - Current Individual: Lựa chọn từng cá thể còn lại sau khi thực hiện train
