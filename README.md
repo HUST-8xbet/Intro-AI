@@ -16,10 +16,8 @@ Tải dự án về và chạy trên CMake <br>
 Trong giao diện CMake, vào mục Configure và chọn thư viện phù hợp (ưu tiên Visual Studio Build Tools 2022 Release) <br>
 Vào mục Launch, ấn chọn main <br>
 Khi vào giao diện có thể lựa chọn Training hoặc Chơi, đối với Training người sử dụng có thể thay đổi số lần train, kích thước map hoặc số bước tối đa kể từ khi ăn thức ăn cuối:
-
 ![Image](https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f)
 Đối với chế độ Chơi, người sử dụng có thể thay đổi kích cỡ của map, hoặc là có thể lựa chọn chế đồ người chơi hoặc AI chơi
-
 ![Image](https://github.com/user-attachments/assets/e52d74de-c422-41dc-b4ba-3ffd8d0afa7a)
 Khi vào trò chơi, ta có thể lựa chọn:<br>
 - Current Individual: Lựa chọn từng cá thể còn lại sau khi thực hiện train
