@@ -55,7 +55,7 @@ void GUI::show_control_window() {
                 if (strlen(control_window_data.save_filename) == 0) {
                     std::cout << "Save Filename Is Null";
                 } else {state = GuiState::Training;
-                train_thread_result = std::async(std::launch::async, training_thread, this,
+                train_thread_result = std::async(std::launch::async, &GUI::training_thread, this,
                                             control_window_data.num_generation,
                                             control_window_data.training_filename,
                                             control_window_data.save_filename,
