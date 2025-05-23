@@ -13,6 +13,6 @@ Trước khi sử dụng tải thư viện `SFML 3.0.0` và `CMake 3.31.7` phù 
 Tải dự án về và chạy trên CMake <br>
 Trong giao diện CMake, vào mục Configure và chọn thư viện phù hợp (ưu tiên Visual Studio Build Tools 2022 Release) <br>
 Vào mục Launch, ấn chọn main <br>
-Khi vào giao diện có thể lựa chọn Training hoặc chơi:
+Khi vào giao diện có thể lựa chọn Training hoặc chơi, người sử dụng có thể thay đổi tùy theo mong muốn của mình:
 ![Image](https://github.com/user-attachments/assets/ebcdbd0e-4fdc-452e-8f1d-c54192c2499f)
 ![Image](https://github.com/user-attachments/assets/e52d74de-c422-41dc-b4ba-3ffd8d0afa7a)
