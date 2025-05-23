@@ -32,6 +32,7 @@ Khi vào trò chơi, ta có thể lựa chọn:
 - New Game: Thực hiện trò chơi mới
 - Stop Game: Dừng lại trò chơi
 <img src="https://github.com/user-attachments/assets/1229e104-0c4a-46f8-8afb-bb9b29143154" width="1000"/>
+
 # Thành viên
 Là các sinh viên khoa Khoa học máy tính - K68 Đại học Bách khoa Hà Nội, dưới sự hướng dẫn của PGS.TS Lê Thanh Hương:<br>
 - Trần Phương Nam 
